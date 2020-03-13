@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Welcome</title>
+    </head>
+    <style>
+        body{
+            -webkit-animation: colorchange 60s infinite;
+            animation: colorchange 60s infinite;
+        }
+        @-webkit-keyframes colorchange {
+            0%  {background: #ffffff;}
+            15%  {background: #7df6f8;}
+            30%  {background: #4099f4;}
+            45%  {background: #724fdc;}
+            60% {background: rgba(200, 116, 212, 0.73);}
+            75% {background: rgba(238,159,145,0.73)}
+            90% {background: #ffffff;}
+        }
+        @keyframes colorchange {
+            0%  {background: #ffffff;}
+            15%  {background: #7df6f8;}
+            30%  {background: #4099f4;}
+            45%  {background: #724fdc;}
+            60% {background: rgba(200, 116, 212, 0.73);}
+            75% {background: rgba(238,159,145,0.73)}
+            90% {background: #ffffff;}
+        }
+    </style>
+    <body>
+        <h1 style="margin-left: 800px;">Training</h1>
+        <h2 style="margin-left: 30px;font-style: italic;" th:utext="${message}">..!..</h2>
+        <h2 th:utext="${secondmessage}">..!..</h2>
+        <h2 th:utext="${phones}">Объект phones</h2>
+
+        <table border="1">
+            <tr style="font-size: 47px;" th:each="phone: ${phones}">
+                <td th:text="${phone.fio}"></td>
+                <td th:text="${phone.num}"></td>
+            </tr>
+        </table>
+    </body>
+</html>
