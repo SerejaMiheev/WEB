@@ -1,18 +1,28 @@
 package com.example.demo;
 
 public class Phone {
+    private long id;
     String fio;
     String num;
 
     @Override
     public String toString(){
-        return "Phone [ФИО= "+fio+", Номер телефона="+num+"]";
+        return "Phone(id ="+ id + ") [ФИО= "+fio+", Номер телефона="+num+"]</br>";
     }
 
-    public Phone(String fio, String num){
+    public Phone(long id, String fio, String num){
         super();
+        this.id = id;
         this.fio = fio;
         this.num = num;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getFio(){

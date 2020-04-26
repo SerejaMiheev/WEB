@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
-        <title>Welcome</title>
+        <title>Web</title>
     </head>
     <style>
         body{
@@ -29,13 +29,13 @@
         }
     </style>
     <body>
-        <h1 style="margin-left: 800px;">Training</h1>
-        <h2 style="margin-left: 30px;font-style: italic;" th:utext="${message}">..!..</h2>
-        <h2 th:utext="${secondmessage}">..!..</h2>
+        <h1>Welcome</h1>
+        <h2 th:utext="${message}">..!..</h2>
         <h2 th:utext="${phones}">Объект phones</h2>
 
         <table border="1">
-            <tr style="font-size: 47px;" th:each="phone: ${phones}">
+            <tr th:each="phone : ${phones}">
+                <td th:text="${phone.id}"></td>
                 <td th:text="${phone.fio}"></td>
                 <td th:text="${phone.num}"></td>
             </tr>

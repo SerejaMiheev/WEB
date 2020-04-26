@@ -1,36 +1,85 @@
 package com.example.demo.controller;
 
-import com.example.demo.Phone;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.example.demo.Phone;
+
 
 @Controller
-    public class MainController {
+public class MainController {
+    private static final Logger log = LoggerFactory.getLogger(MainController.class);
 
-        @Value("${welcome.message}")
-        private String message;
+    @Value("${welcome.message}")
+    private String message;
 
-        @Value("${second.message}")
-        private String secondmessage;
 
-        @RequestMapping(value = { "/", "/index" }, method = RequestMethod.GET)
-        public String index(Model model) {
-            model.addAttribute("message", message);
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
-            List<Phone> lp = new ArrayList<>();
-            lp.add(new Phone("Иванов Иван Иванович", "381458120"));
-            lp.add(new Phone("Ханинова Ирина Леонидовна ", "141454731"));
-            lp.add(new Phone("Каменских Елизар Андроникович ", "950410645"));
-            lp.add(new Phone("Аникин Викентий Касьянович", "520401509"));
-            lp.add(new Phone("Астанков Парфен Елисеевич", "747816357"));
-            model.addAttribute("secondmessage",secondmessage);
-            model.addAttribute("phones",lp);
-            return "index";
-        }
+
+    @RequestMapping(value = {"/", "/index"}, method = RequestMethod.GET)
+    public String index(Model model) {
+        List<Phone> lp = new ArrayList<>();
+        jdbcTemplate.query(
+                "SELECT id, fio, num FROM phone",
+                (rs, rowNum) -> new Phone(rs.getLong("id"), rs.getString("fio"), rs.getString("num"))
+        ).forEach(phone -> lp.add(phone));
+
+        model.addAttribute("message", message);
+        model.addAttribute("phones", lp);
+
+        return "index";
     }
+
+    @RequestMapping(value = {"/create"}, method = RequestMethod.GET)
+    public String createTable() {
+
+        log.info("Creating tables");
+
+        jdbcTemplate.execute("DROP TABLE phone IF EXISTS");
+        jdbcTemplate.execute("CREATE TABLE phone(" +
+                "id SERIAL, fio VARCHAR(255), num VARCHAR(255))");
+
+        List<Object[]> splitUpNames = Arrays.asList("Флока 1111", "Иванов 222", "Петров 333", "Сидоров 4444").stream()
+                .map(inStr -> inStr.split(" "))
+                .collect(Collectors.toList());
+
+        splitUpNames.forEach(inStr -> log.info(String.format("Добавлена запись %s %s", inStr[0], inStr[1])));
+
+
+        jdbcTemplate.batchUpdate("INSERT INTO phone(fio, num) VALUES (?,?)", splitUpNames);
+
+        jdbcTemplate.execute("INSERT INTO phone(fio, num) VALUES ('Флока1','1111-1')");
+        jdbcTemplate.execute("INSERT INTO phone(fio, num) VALUES ('Иванов1','222-1')");
+
+        log.info("Запрос записи, where fio = 'Флока':");
+        jdbcTemplate.query(
+                "SELECT id, fio, num FROM phone WHERE fio = ?", new Object[]{"Флока"},
+                (rs, rowNum) -> new Phone(rs.getLong("id"), rs.getString("fio"), rs.getString("num"))
+        ).forEach(phone -> log.info(phone.toString()));
+
+        log.info("Запрос записи, where fio like 'Флока%':");
+        jdbcTemplate.query(
+                "SELECT id, fio, num FROM phone WHERE fio like ?", new Object[]{"Флока%"},
+                (rs, rowNum) -> new Phone(rs.getLong("id"), rs.getString("fio"), rs.getString("num"))
+        ).forEach(phone -> log.info(phone.toString()));
+
+        return "create";
+    }
+
+
+}
+
